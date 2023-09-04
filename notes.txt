@@ -1173,3 +1173,5 @@ and run -> http-server
 ================================================ Deploy Project ==================
 Now I have removed http://localhost:5555 this part from all the api im using in front end 
 and again give a build ,now again copy and paste the build folder here 
+
+1. now add your node files on git 
