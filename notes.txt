@@ -1,0 +1,1175 @@
+======== lib.js ======= 
+exports.sum =(a,b)=>{
+    return a+b
+}
+exports.diff =(a,b)=>{
+    return a-b
+}
+
+<<<< ======   or   ======>>>>
+
+const deleteUser = (req, res) => {
+  const id = +req.params.id;
+  const userIndex = users.findIndex((ele) => ele.id === id);
+  users.splice(userIndex, 1);
+  res.send("Deleted Succefully");
+};
+// How to export multiple functions 
+module.exports = { getUsers,getSingleUser,createUser,updateUserPut,updateUserPatch,deleteUser }
+
+
+********* or  **********8
+
+
+       const sumOfNumer = (a, b) => {
+  var c = a + b;
+  return c
+};
+const productOfNumer = (a, b) => {
+  var c = a * b;
+  return c
+};
+exports.sumOfNumer = sumOfNumer;
+exports.productOfNumer = productOfNumer;
+============= Under standing  readFileSync and readFile which is faster  =============== 
+const lib = require('./lib')
+
+console.log("sum(2,3) >>",lib);
+
+1. file system module -> fs
+
+Now let's understand readFileSync and readFile (async) which is good and why 
+
+// ##################### sync
+ 
+const t1= performance.now()
+const txt = fs.readFileSync("demo.txt", "utf-8");
+console.log("txt >>", txt);
+
+console.log("sum >", lib.sum(2, 3));
+console.log("diff >", lib.diff(2, 3));
+const t2= performance.now()
+
+console.log(t2-t1); => 11 ms 
+
+
+
+// ********************** Async 
+
+const t1= performance.now()
+fs.readFile('demo.txt','utf-8' , (error,txt)=>{
+    console.log(txt);
+})
+
+console.log("sum >", lib.sum(2, 3));
+console.log("diff >", lib.diff(2, 3));
+const t2= performance.now()
+console.log(t2-t1);   -> 1 ms 
+
+
+============================== npm ==================
+
+npm init 
+npm install --save-dev nodemon   (we are adding this to dev dependancy)
+
+============================== Web Server ==================
+CLINET <-------  req and res  ------->  Web Server
+Now to talk to  web server we need to send HTTP Request 
+which has 3 parts
+
+HTTP Request
+1.Request line (GET, POST/login , DELETE , PUT)      
+2.Headers   cookies, language , etc     
+3.Body : {
+            usename :"zxcvb"
+            password:12345FGHJ&&
+         }
+
+HTTP Response
+1. status line : 200 , 500, 404 , etc..
+2. Headers : extra info 
+3. Body : html page 
+
+--------------------------- Creating Server in Node js -------------------------
+
+const http = require('http');
+
+// Method 1
+// http.createServer(   (req, res)=>{
+//     console.log("Server Sarted")
+//     res.end("Hello Learning Server ....")
+// }).listen(8080)
+
+ Method 2
+ const myServer = http.createServer(  (req, res)=>{
+     res.end('server.')
+ }  )
+ myServer.listen(5555)   // to run on localhost:5555
+
+=============== sending object to server  ======================
+
+const http = require('http');
+
+const data ={
+    name:"Saurabh",
+    age:26
+}
+const server = http.createServer( (req, res)=>{
+    console.log("Server Sarted");
+    res.setHeader('Dummy', 'Dummy Data')   // This will set this key value pair into header and it should be always before sending to server 
+
+    res.end(JSON.stringify(data))   // Converting JSON  object data to string
+}  )
+
+server.listen(8080)
+
+
+================== reading json file =====================
+Note : when we are reading file using fs , we don't need to use JSON.stringify() as utf is converting it 
+and in other case we have to use stringify 
+
+
+const fs = require("fs");
+const http = require("http");
+// const data = require("./data.json");
+// const data ={
+//     age:26
+//     name:"Saurabh",
+// }
+
+// const prod = fs.readFileSync('data.json', 'utf-8')
+
+const server = http.createServer((req, res) => {
+  console.log("Server Sarted");
+  console.log(req.url);
+  res.setHeader("Dummy", "Dummy Data"); // This will set this key value pair into header
+
+  res.setHeader("Content-Type", "application/json");
+  //   res.setHeader("Content-Type", "text/html");
+  //defining data type which Im sending to server
+  
+  //   res.end(prod);
+
+  fs.readFile("data.json", "utf-8", (error, users) => {
+    res.end(users);
+  });
+});
+
+server.listen(8080);
+
+
+=========================== How to read html file and show it on server ===================
+
+const fs = require("fs");
+const http = require("http");
+// const data = require("./data.json");
+// const data ={
+//     age:26
+//     name:"Saurabh",
+// }
+
+// const prod = fs.readFileSync('data.json', 'utf-8')
+
+// how to read html file
+
+const server = http.createServer((req, res) => {
+  console.log("Server Sarted");
+  console.log(req.url);
+  res.setHeader("Dummy", "Dummy Data"); // This will set this key value pair into header
+
+  res.setHeader("Content-Type", "application/json");
+  //defining data type which Im sending to server
+
+  //   res.end(prod);
+
+  // fs.readFile("data.json", "utf-8", (error, users) => {
+  //   res.end(users);
+  // });
+
+  res.setHeader("Content-Type", "text/html");
+  fs.readFile("index.html", "utf-8", (error, data) => {
+    res.end(data);
+  });
+});
+
+server.listen(8080);
+
+
+========================  Express ============================
+npm install express
+
+const express = require('express')
+
+const server = express();
+
+server.listen(8080)
+
+
+============================ using same as http to create Server ============
+ 
+
+const express = require("express");
+const fs = require("fs");
+// Server started
+const server = express();
+console.log("__dirname >>", __dirname);
+
+server.get("/", (req, res) => {
+  // METHOD 1
+  //   res.send("<h1>Welocme to GeeksforGeeks!</h1>");
+  // METHOD 2
+  //   res.sendFile(__dirname + "/demo.txt");
+  //   METHOD 3
+  //   fs.readFile("data.json", "utf-8", (error, data) => {
+  //     res.json(JSON.parse(data));
+  //   });
+
+  //   We can also send status code and file/ data etc
+//   res.status(200).send("dfghhhhhhhhhh");
+});
+
+// Server ended
+server.listen(8080, () => {
+  console.log("Server started >>>");
+});
+
+
+========================= Middleware ============
+const express = require("express");
+const fs = require("fs");
+// Server started
+const server = express();
+
+// MiddleWare
+server.use((req, res, next)=>{
+    console.log('Request Type:', req.url)
+
+    next()   // if not used relaoding of the server will be doing as , it is not getting resp as of now
+});
+
+const authMiddleware= (req, res, next)=>{
+    if(req.query.password === '12345'){
+        //http://localhost:8080/?password=123
+        next()
+
+    }else{
+        res.send(401)  // unauthorised status
+    }
+}
+server.use(authMiddleware)
+
+// API -endpoint - route
+server.get("/", (req, res) => {
+//   res.send({ type: "GET" });
+  res.status(200).send("get call ");
+});
+
+server.post("/", (req, res) => {
+  res.send({ type: "POST" });
+});
+server.put("/", (req, res) => {
+  res.send({ type: "PUT" });
+});
+server.delete("/", (req, res) => {
+  res.send({ type: "DELETE" });
+});
+server.patch("/", (req, res) => {
+  res.send({ type: "PATCH" });
+});
+
+// Server ended
+server.listen(8080, () => {
+  console.log("Server started >>>");
+});
+
+In the above example we have middle were which will be applied Application-level middleware
+
+
+============================  Router-level middleware  ============================ 
+
+only get call has authMiddleware rest don't have 
+we can also validate it with postman by adding info into params it will automatically change your url 
+
+const express = require("express");
+const fs = require("fs");
+// Server started
+const server = express();
+
+// MiddleWare
+server.use((req, res, next) => {
+  console.log("Request Type:", req.url);
+
+  next(); // if not used relaoding of the server will be doing as , it is not getting resp as of now
+});
+
+const authMiddleware = (req, res, next) => {
+  console.log(req.query);
+  if (req.query.password === "12345") {
+    //http://localhost:8080/?password=123
+    next();
+  } else {
+    res.send(401); // unauthorised status
+  }
+};
+// server.use(authMiddleware)      -> to apply MiddleWare on project level 
+
+// API -endpoint - route
+server.get("/", authMiddleware, (req, res) => {
+  //   res.send({ type: "GET" });
+  res.status(200).send("get call ");
+});
+
+server.post("/", (req, res) => {
+  res.send({ type: "POST" });
+});
+server.put("/", (req, res) => {
+  res.send({ type: "PUT" });
+});
+server.delete("/", (req, res) => {
+  res.send({ type: "DELETE" });
+});
+server.patch("/", (req, res) => {
+  res.send({ type: "PATCH" });
+});
+
+// Server ended
+server.listen(8080, () => {
+  console.log("Server started >>>");
+});
+
+======================================== Build In MiddleWare ========================
+1.express.static 
+2.express.json 
+3.express.urlencoded (Not of so much use)
+
+at postman -> go to body and select -> raw -> json 
+
+now let's try req.body method from postman
+{
+    "password":"12345"
+    //Note both should be in string otherwise unauthorised
+}
+
+
+const express = require("express");
+const fs = require("fs");
+// Server started
+const server = express();
+
+// Body parser
+server.use(express.json())    --> We have to use this when we are dealing with forms 
+
+// MiddleWare
+server.use((req, res, next) => {
+  console.log("Request Type:", req.url);
+
+  next(); // if not used relaoding of the server will be doing as , it is not getting resp as of now
+});
+
+const authMiddleware = (req, res, next) => {
+  console.log("body >>",req.body);
+//   if (req.query.password === "12345") {
+  if (req.body.password === "12345") {
+    //http://localhost:8080/?password=123
+    next();
+  } else {
+    res.sendStatus(401); // unauthorised status
+  }
+};
+// server.use(authMiddleware)
+
+// API -endpoint - route
+server.get("/", authMiddleware, (req, res) => {
+  //   res.send({ type: "GET" });
+  res.status(200).send("get call ");
+});
+
+server.post("/", (req, res) => {
+  res.send({ type: "POST" });
+});
+server.put("/", (req, res) => {
+  res.send({ type: "PUT" });
+});
+server.delete("/", (req, res) => {
+  res.send({ type: "DELETE" });
+});
+server.patch("/", (req, res) => {
+  res.send({ type: "PATCH" });
+});
+
+// Server ended
+server.listen(8080, () => {
+  console.log("Server started >>>");
+});
+
+
+================================  Static Hosting ================================
+we can keep files in public folder and can directly host it like data.json 
+index.html also 
+localhost:3000/index.html or /data.json
+
+
+const express = require("express");
+const fs = require("fs");
+// Server started
+const server = express();
+
+// Body parser
+server.use(express.json())
+
+// Static Hosting - public folder and host it
+server.use(express.static('public'))
+
+// MiddleWare
+server.use((req, res, next) => {
+  console.log("Request Type:", req.url);
+
+  next(); // if not used relaoding of the server will be doing as , it is not getting resp as of now
+});
+
+const authMiddleware = (req, res, next) => {
+  console.log("body >>",req.body);
+//   if (req.query.password === "12345") {
+  if (req.body.password === "12345") {
+    //http://localhost:8080/?password=123
+    next();
+  } else {
+    res.sendStatus(401); // unauthorised status
+  }
+};
+// server.use(authMiddleware)
+
+// API -endpoint - route
+server.get("/", authMiddleware, (req, res) => {
+  //   res.send({ type: "GET" });
+  res.status(200).send("get call ");
+});
+
+server.post("/", (req, res) => {
+  res.send({ type: "POST" });
+});
+server.put("/", (req, res) => {
+  res.send({ type: "PUT" });
+});
+server.delete("/", (req, res) => {
+  res.send({ type: "DELETE" });
+});
+server.patch("/", (req, res) => {
+  res.send({ type: "PATCH" });
+});
+
+// Server ended
+server.listen(8080, () => {
+  console.log("Server started >>>");
+});
+
+
+================== Third Party MiddleWare ===============
+ npm install morgan
+ const morgan = require("morgan");
+  server.use(morgan('dev'));
+
+No so much of our use 
+
+========================= params =============
+
+const express = require("express");
+const fs = require("fs");
+const morgan = require("morgan");
+// Server started
+const server = express();
+
+// Body parser
+server.use(express.json());
+
+// Static Hosting - public folder and host it
+// server.use(express.static("public"));
+
+server.use(morgan('dev'));
+// MiddleWare
+// server.use((req, res, next) => {
+//   console.log("Request Type:", req.url);
+
+//   next(); // if not used relaoding of the server will be doing as , it is not getting resp as of now
+// });
+
+// const authMiddleware = (req, res, next) => {
+//   console.log("body >>",req.body);
+// //   if (req.query.password === "12345") {
+//   if (req.body.password === "12345") {
+//     //http://localhost:8080/?password=123
+//     next();
+//   } else {
+//     res.sendStatus(401); // unauthorised status
+//   }
+// };
+// server.use(authMiddleware)
+
+// API -endpoint - route
+server.get("/products/:id", (req, res) => {
+  //   res.send({ type: "GET" });
+
+console.log("123 >>", req.params);
+// unless and until I will not hit  /products/:id , this will not get called 
+  res.status(200).send("get call ");
+});
+
+server.post("/", (req, res) => {
+  res.send({ type: "POST" });
+});
+server.put("/", (req, res) => {
+  res.send({ type: "PUT" });
+});
+server.delete("/", (req, res) => {
+  res.send({ type: "DELETE" });
+});
+server.patch("/", (req, res) => {
+  res.send({ type: "PATCH" });
+});
+
+// Server ended
+server.listen(8080, () => {
+  console.log("Server started >>>");
+});
+
+
+============================ RSET API and CRUD ==============================
+
+filter -> returns array 
+find -> returns particular object 
+
+
+const express = require("express");
+const fs = require("fs");
+const morgan = require("morgan");
+const products = require("./data.json");
+// Server started
+const server = express();
+
+// Body parser
+server.use(express.json());
+
+// Static Hosting - public folder and host it
+// server.use(express.static("public"));
+
+server.use(morgan("dev"));
+
+// API -endpoint - route
+// REST
+// Base URL : localhost:8080
+
+// Read API GET /products
+server.get("/products", (req, res) => {
+  //   res.send({ type: "GET" });
+  //   res.status(200).send("get call ");
+  res.send(products);
+});
+
+// Read API GET /products/:id
+server.get("/products/:id", (req, res) => {
+  console.log(req.params.id);
+  const id = +req.params.id;
+  //   filter -> returns array
+  // find -> returns particular object
+
+  //why Im using find is I need only one object instead of array
+  const product = products.find((p) => p.id === id);
+  res.send(product);
+});
+
+// Create API , POST
+// inside body with {  "key":"value"  pair  }
+server.post("/products", (req, res) => {
+  console.log(req.body);
+  products.push(req.body);
+  res.send(req.body);
+});
+
+// UPDATE Put
+server.put("/products/:id", (req, res) => {
+  console.log("put >", req.body);
+  //   console.log("put id>", req.params.id);
+  const id = +req.params.id;
+
+  // Here I will be using slpice method to update value
+  // syntax is
+  // arrayBuffer.splice(index, 1/0 , data )
+
+  // to find index
+  const productIndex = products.findIndex((ele) => ele.id === id);
+
+  //   products.splice(productIndex, 1, {...req.body, id:id});
+  products.splice(productIndex, 1, { ...req.body, id: id }); // overwrite previous data , only this much data will be there
+
+  res.status(200).send("Updated Successfully !!");
+});
+
+server.patch("/products/:id", (req, res) => {
+  const id = +req.params.id;
+  //   res.send({ type: "PATCH" });
+  const productIndex = products.findIndex((ele) => ele.id === id);
+
+  //   products.splice(productIndex, 1, {...req.body, id:id});
+  const product = products[productIndex];
+  products.splice(productIndex, 1, { ...product, ...req.body });
+
+  res.status(200).send("Updated Successfully !!");
+});
+
+server.delete("/products/:id", (req, res) => {
+  const id = +req.params.id;
+  //   const product = products.filter((p) => p.id !== id);
+  const productIndex = products.findIndex((ele) => ele.id === id);
+
+  //   products.splice(productIndex, 1, {...req.body, id:id});
+
+  products.splice(productIndex, 1);
+  res.send("Deleted Succefully");
+});
+
+// Server ended
+server.listen(8080, () => {
+  console.log("Server started >>>");
+});
+
+
+=============================================== CRUD with clean code ===============================
+const express = require("express");
+const app = express();
+const users = require("./users.json");
+
+app.use(express.json());
+
+// GET All Users
+app.get("/users", (req, res) => {
+  res.send(users);
+});
+
+// GET particular user
+app.get("/users/:id", (req, res) => {
+  console.log(req.params);
+  const id = +req.params.id;
+  const user = users.find((ele) => ele.id === id);
+  res.send(user);
+});
+
+// POST user
+app.post("/users", (req, res) => {
+  users.push(req.body);
+  res.end("User Added Succesfully");
+});
+
+// Update user PUT
+app.put("/users/:id", (req, res) => {
+  const id = +req.params.id;
+  const userIndex = users.findIndex((ele) => ele.id === id);
+  users.splice(userIndex, 1, { ...req.body, id: id });
+  res.send("Updated Successfuly !!");
+});
+
+// Update user PATCH
+app.patch("/users/:id", (req, res) => {
+  const id = +req.params.id;
+  const userIndex = users.findIndex((ele) => ele.id === id);
+  const user = users[userIndex];
+  users.splice(userIndex, 1, { ...user, ...req.body });
+  res.send("Updated Successfuly !!");
+});
+
+// DELETE user
+app.delete("/users/:id", (req, res) => {
+  const id = +req.params.id;
+  const userIndex = users.findIndex((ele) => ele.id === id);
+  users.splice(userIndex, 1);
+  res.send("Deleted Succefully");
+});
+
+app.listen(5555);
+
+
+============================================  MVC  ================================
+
+// separating the call back function , make it for all I have given a ex of Delete call 
+
+Here we are learning on C part of MVC as Model and View will taken later  
+now let's try to make this code shorter and making fucntion or so called controller 
+in other files 
+
+ex 1:
+// DELETE user
+const deleteUser = (req, res) => {
+  const id = +req.params.id;
+  const userIndex = users.findIndex((ele) => ele.id === id);
+  users.splice(userIndex, 1);
+  res.send("Deleted Succefully");
+};
+app.delete("/users/:id", deleteUser);
+
+ex 2:
+
+app.get("/users", getUsers);
+app.get("/users/:id", getSingleUser);
+app.post("/users", createUser);
+app.put("/users/:id", updateUserPut);
+app.patch("/users/:id", updateUserPatch);
+app.delete("/users/:id", deleteUser);
+
+this can be chained as we do in js 
+so it will be like this 
+
+app
+  .get("/users", getUsers)
+  .get("/users/:id", getSingleUser)
+  .post("/users", createUser)
+  .put("/users/:id", updateUserPut)
+  .patch("/users/:id", updateUserPatch)
+  .delete("/users/:id", deleteUser)
+  .listen(5555);
+
+
+-------------------------------  so our code will look like this  --------------------------------------
+
+index.js file ::
+
+const express = require("express");
+const app = express();
+const userController = require("./controller/user");
+
+// Body Parser
+app.use(express.json());
+
+// MVC model
+
+
+//
+app
+  .get("/users", userController.getUsers)
+  .get("/users/:id", userController.getSingleUser)
+  .post("/users", userController.createUser)
+  .put("/users/:id", userController.updateUserPut)
+  .patch("/users/:id", userController.updateUserPatch)
+  .delete("/users/:id", userController.deleteUser);
+  
+  app.listen(5555);
+
+
+controller folder -> user.js file :::
+
+const users = require("../users.json");
+
+
+// GET All Users
+const getUsers = (req, res) => {
+  res.send(users);
+};
+
+// GET particular user
+const getSingleUser = (req, res) => {
+  console.log(req.params);
+  const id = +req.params.id;
+  const user = users.find((ele) => ele.id === id);
+  res.send(user);
+};
+
+// POST user
+
+const createUser = (req, res) => {
+  users.push(req.body);
+  res.end("User Added Succesfully");
+};
+
+// Update user PUT
+const updateUserPut = (req, res) => {
+  const id = +req.params.id;
+  const userIndex = users.findIndex((ele) => ele.id === id);
+  users.splice(userIndex, 1, { ...req.body, id: id });
+  res.send("Updated Successfuly !!");
+};
+
+// Update user PATCH
+const updateUserPatch = (req, res) => {
+  const id = +req.params.id;
+  const userIndex = users.findIndex((ele) => ele.id === id);
+  const user = users[userIndex];
+  users.splice(userIndex, 1, { ...user, ...req.body });
+  res.send("Updated Successfuly !!");
+};
+
+// DELETE user
+const deleteUser = (req, res) => {
+  const id = +req.params.id;
+  const userIndex = users.findIndex((ele) => ele.id === id);
+  users.splice(userIndex, 1);
+  res.send("Deleted Succefully");
+};
+
+module.exports = { getUsers,getSingleUser,createUser,updateUserPut,updateUserPatch,deleteUser }
+
+now let's add 
+==================== const userRouter = express.Router(); ====================
+
+const express = require("express");
+const app = express();
+const userController = require("./controller/user");
+const userRouter = express.Router();
+// Body Parser
+app.use(express.json());
+app.use("/api", userRouter); // after wrting this we are able to use userRouter
+// api will be http://localhost:5555/api/users
+//
+// app instead of app cahnge your entry router
+userRouter
+  .get("/users", userController.getUsers)
+  .get("/users/:id", userController.getSingleUser)
+  .post("/users", userController.createUser)
+  .put("/users/:id", userController.updateUserPut)
+  .patch("/users/:id", userController.updateUserPatch)
+  .delete("/users/:id", userController.deleteUser);
+
+app.listen(5555);
+
+
+controller-> user file will be same as previous  
+
+----------------------------------------------------------------------------
+now we can make changes into the path of api 
+app.use("/users", userRouter);
+userRouter
+  .get("/users", userController.getUsers)
+  .get("/users/:id", userController.getSingleUser)
+  .post("/users", userController.createUser)
+  .put("/users/:id", userController.updateUserPut)
+  .patch("/users/:id", userController.updateUserPatch)
+  .delete("/users/:id", userController.deleteUser);
+
+app.listen(5555);
+now again url will be : localhost:5555/users
+
+============================= exporting your whole userRouter part to other file =======================
+
+No I have 3 files 
+
+=========================================================== 1.index.js 
+const express = require("express");
+const userRouter = require("./router/user");
+const app = express(); // this should be only 1
+
+// Body Parser
+app.use(express.json());
+app.use("/users", userRouter); // after wrting this we are able to use userRouter on server level
+
+app.listen(5555);
+
+=========================================================== 2.router -> user.js
+
+// this userRouter needs app.use("/users", userRouter); which will come from
+// const app = express();  // this should be only 1 , but we can't make it 2 times as sever will be one
+const express = require("express");
+const userController = require("../controller/user");
+
+const userRouter = express.Router();
+
+// but still it's not connect to server
+userRouter
+  .get("/", userController.getUsers)
+  .get("/:id", userController.getSingleUser)
+  .post("/", userController.createUser)
+  .put("/:id", userController.updateUserPut)
+  .patch("/:id", userController.updateUserPatch)
+  .delete("/:id", userController.deleteUser);
+
+module.exports = userRouter;
+
+=========================================================== 3. controller -> user.js
+
+no change in this file as of now 
+
+================================== Now added one more router for post ===========
+
+showing only index.js file  ----------------
+
+
+const express = require("express");
+const userRouter = require("./router/user");
+const postRouter = require("./router/post");
+const app = express(); // this should be only 1
+
+// Body Parser
+app.use(express.json());
+app.use("/users", userRouter); // after wrting this we are able to use userRouter on server level
+app.use("/posts", postRouter); // after wrting this we are able to use userRouter on server level
+
+app.listen(5555);
+
+====================================================================================================================
+============================================= Mongo DB  is a Database ==============================================
+
+Note :  Here we have seen some quaries for db from mongo shell , not required to learn from shell 
+because we will be doing it in our controllers :
+
+
+
+
+Mongo db is a no sql database
+
+DB Server -> dataBase  (they can be multiple eg : university , Cricket , etc...) -> Collection -> Documents  
+
+example :
+DB Server -> University  -> students , Courses , Teachers -> Document like each students info 
+
+let's refer students Document - >
+it's a json/ bson type of data 
+
+{
+  objectId :"673htyuJ567890",
+  name:"Devesh Mishra",
+  age:26,
+  course: "Hindi"
+}
+
+
+=============== JSON ===============
+JSON is javascript object notation.	
+JSON contains some basic data types like string, numbers, Boolean, null.
+It is comparatively less faster than BSON.
+** It is used for the transmission of data.	(transmission)
+
+=============== BSON =================
+BSON is Binary Javascript Object notation.
+BSON contains some additional data types like date, timestamp, etc.
+The data in MongoDB is stored in a BSON format.
+It is faster as compared to BSON.
+** It is used for the storage of data.  (storage)
+
+
+DOWNLOAD ______> now go to mongo db website download 
+Prodcuts ->Community server ->  download this (MongoDB Community Server Download) 
+compass is also needed (if you download above msi package it will giev you compass too )
+
+------------------------------------------------------------------------------
+open app and click on connect 
+you will see admin , config and local and these are refered as your collections 
+
+DOWNLOAD ______> Mongo shell 
+
+now extract its file and from cmd propmp go to bin folder 
+eg path : Downloads\shell\mongosh-1.10.6-win32-x64\bin>
+now run command called >    .mongosh
+it will open test>
+
+commands to use -->  
+1. show dbs (to get names of all databses )
+2. use local to switch to local db
+3. No we will create our db 
+4. use ecommerce
+now let's create colletion 
+db.products.insertOne({'title':'iphone'})
+this will create a collection and add 1 data 
+5. to add many 
+db.products.insertMany([  paste your object   ]) 
+
+till now I have seen compass and shell 
+
+-------------------------------------------------Mongo db Atlas ------------------------------------
+to make your database on cloud 
+
+https://www.mongodb.com/cloud/atlas/register
+
+I tried using this 
+database passwrod  ->  KhKOnxPTw9h1FMqL
+mongodb+srv://saurabh:<password>@cluster0.slyaqgt.mongodb.net/
+
+In video he is doing it with shell , but Im doing it compass
+
+----------------------------------------------- Mongoose ----------------------------------------------------
+Also I have added env file -> npm install dotenv -> import it -> add your db password , db url , your port number 
+like this 
+
+DB_PASSWORD=KhKOnxPTw9h1FMqL
+CONNECT_URL_COMPASS=mongodb+srv://saurabh:DB_PASSWORD@cluster0.slyaqgt.mongodb.net/
+PORT=5555
+
+
+
+here we will be learning how to connect our server with Atlas (cloud db) using compass (local db)
+
+npm install mongoose 
+
+//connection with db
+
+main().catch((err) => console.log(err));
+
+async function main() {
+  await mongoose.connect("mongodb+srv://saurabh:KhKOnxPTw9h1FMqL@cluster0.slyaqgt.mongodb.net/ecommerce");
+  //this is my could url for db 
+  // I have to add same in my compass too 
+  console.log("connected ...");
+}
+ecommerce is my database name 
+
+now let's connect to collection 
+
+
+// schema
+const { Schema } = mongoose;
+const ProductSchema = new Schema({
+  title: String,
+  price: Number,
+  description: String,
+  category: String,
+  image: [String],
+});
+
+const Product = mongoose.model("Product", UserSchema); // in model "singular name"
+
+
+so our index file looks like this =============================
+
+const express = require("express");
+const userRouter = require("./router/user");
+const postRouter = require("./router/post");
+const app = express(); // this should be only 1
+require("dotenv").config();
+const mongoose = require("mongoose");
+
+
+//connection with db
+
+main().catch((err) => console.log(err));
+
+async function main() {
+  await mongoose.connect("mongodb://127.0.0.1:27017/test");  // I have update it with my atlas url 
+  console.log("DataBase Connetced ...");
+}
+
+
+// schema
+const { Schema } = mongoose;
+const UserSchema = new Schema({
+  name: String,
+  username: String,
+  email: String,
+  phone: String,
+  website: [String],
+});
+
+const Product = mongoose.model("Product", UserSchema); // in model "singular name"
+
+
+// Body Parser
+
+app.use(express.json());
+app.use("/users", userRouter); // after wrting this we are able to use userRouter on server level
+app.use("/posts", postRouter); // after wrting this we are able to use userRouter on server level
+
+app.listen(process.env.PORT);
+
+
+======================================
+now I have cretaed a model foder inside it user.js and pasted my schema overthere 
+model -> user.js
+const { Schema } = mongoose;
+const mongoose = require("mongoose");
+
+const UserSchema = new Schema({
+  name: String,
+  username: String,
+  email: String,
+  phone: String,
+  website: [String],
+});
+
+const User = mongoose.model("User", UserSchema); // in model "singular name"
+now export this 
+
+now get this model into your userr controller as we have to get the user data from the database 
+
+
+===================================   Unerstanding Query  =====================================
+
+Create Query in Node js 
+
+const User = model.User;
+
+// POST user
+const createUser = (req, res) => {
+  // console.log(req.body);
+  const user = new User(req.body);
+  //   user.name = "Saurabh";
+  //   user.username = "Saurabhchandel007";
+  user.save();
+  res.status(201).send("User Added Succesfully");
+};
+
+
+// GET All Users
+const getUsers = async (req, res) => {
+//   const users = await User.find({});   // this is use to add some condition like 
+// I want to see user which has age grater than 50, so I can put it from backend also  
+  const users = await User.find();
+  res.send(users);
+};
+
+
+// GET particular user
+const getSingleUser = async (req, res) => {
+  // console.log(req.params.id);
+  const id = req.params.id;
+  console.log({ id });
+  //   const user = users.find((ele) => ele.id === id);
+  //   res.send(user);
+  const user = await User.findById(id).exec();
+  res.send(user);
+};
+
+
+// DELETE user
+const deleteUser = async (req, res) => {
+  const id = req.params.id;
+  const user = await User.findByIdAndDelete(id);
+
+  res.send(user);
+};
+
+// Update user PUT
+const updateUserPut = async (req, res) => {
+  const id = req.params.id;
+  // const user = await User.findByIdAndUpdate(id, req.body, { new: false });  // I tried but no changes with the results 
+  const user = await User.findByIdAndUpdate(id, req.body);
+  res.end("User Updated Success !");
+};
+
+I have tried put but still Im able getting all the values 
+so I will ask this to shivang later 
+
+
+=========================================================================================================
+========================================== Adding React JS ==============================================
+
+now we will get all the values from api 
+1. install cors
+2. add this cors to index file in index.js
+and add it as a middleware on app level app.use(cors()); now we can use our any anywhere 
+
+create your react app -> give a build 
+add that build folder on project level 
+npm install -g http-server   (Make sure it should be globally) in React App 
+
+
+-----------------add this in node --------------------
+const path = require('path')
+
+app.use(express.static("public"));
+
+// React build file adding
+app.use("*", (req, res) => {
+  res.sendFile(path.resolve(__dirname,'build','index.html'));
+});
+----------------------------------------------------------
+
+from terminal go to build folder in React APP 
+and run -> http-server 
+
+================================================ Deploy Project ==================
+Now I have removed http://localhost:5555 this part from all the api im using in front end 
+and again give a build ,now again copy and paste the build folder here 
